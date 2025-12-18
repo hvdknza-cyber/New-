@@ -7,10 +7,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 export const analyzeVideoLink = async (url: string): Promise<VideoMetadata> => {
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `Analyze this video URL and return structured metadata for a video downloader tool. 
-    The URL is: ${url}. 
-    Return realistic but simulated data since this is a UI demonstration. 
-    Ensure quality options include HD, Full HD, and No Watermark versions where applicable.`,
+    contents: `Analyze this video URL: ${url}. 
+    Create highly realistic video metadata. 
+    If it's TikTok, include options like "No Watermark HD". 
+    If it's YouTube, include options like "4K (2160p)" and "1080p".
+    Ensure each quality option has a unique 'id' string.`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
@@ -26,12 +27,13 @@ export const analyzeVideoLink = async (url: string): Promise<VideoMetadata> => {
             items: {
               type: Type.OBJECT,
               properties: {
+                id: { type: Type.STRING },
                 label: { type: Type.STRING },
                 size: { type: Type.STRING },
                 format: { type: Type.STRING },
                 isWatermarkFree: { type: Type.BOOLEAN }
               },
-              required: ['label', 'size', 'format', 'isWatermarkFree']
+              required: ['id', 'label', 'size', 'format', 'isWatermarkFree']
             }
           }
         },
@@ -41,10 +43,9 @@ export const analyzeVideoLink = async (url: string): Promise<VideoMetadata> => {
   });
 
   const text = response.text;
-  if (!text) throw new Error("فشل في تحليل الرابط. يرجى المحاولة مرة أخرى.");
+  if (!text) throw new Error("فشل في تحليل الرابط.");
   
   const data = JSON.parse(text);
-  // Enhance simulated thumbnail if none provided
   if (!data.thumbnail || data.thumbnail.includes('placeholder')) {
     data.thumbnail = `https://picsum.photos/seed/${Math.random()}/800/450`;
   }

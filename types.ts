@@ -9,6 +9,7 @@ export interface VideoMetadata {
 }
 
 export interface QualityOption {
+  id: string;
   label: string;
   size: string;
   format: string;
@@ -19,5 +20,12 @@ export enum AppStatus {
   IDLE = 'IDLE',
   LOADING = 'LOADING',
   SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR'
+  ERROR = 'ERROR',
+  DOWNLOADING = 'DOWNLOADING'
+}
+
+export interface DownloadState {
+  optionId: string | null;
+  progress: number;
+  statusText: string;
 }
